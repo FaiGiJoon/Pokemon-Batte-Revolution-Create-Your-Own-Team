@@ -1,0 +1,5 @@
+{
+  "name": "PBR PKHex Database UI",
+  "description": "A modern user interface for browsing and managing a Pokémon Battle Revolution PKHex database. View Pokémon, their available battle sets, and build your team in a virtual storage box.",
+  "requestFramePermissions": []
+}
