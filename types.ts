@@ -16,7 +16,6 @@ export enum PokemonType {
   Dragon = 'Dragon',
   Dark = 'Dark',
   Steel = 'Steel',
-  Fairy = 'Fairy',
 }
 
 export interface BattleSet {

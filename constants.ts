@@ -18,5 +18,4 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   [PokemonType.Dragon]: 'bg-poke-dragon',
   [PokemonType.Dark]: 'bg-poke-dark',
   [PokemonType.Steel]: 'bg-poke-steel',
-  [PokemonType.Fairy]: 'bg-poke-fairy',
 };
