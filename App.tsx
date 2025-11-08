@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import type { Pokemon, StoredPokemon, BattleSet, Notification } from './types';
 import { getPokemonDatabase } from './services/pokemonService';
 import { parseSaveFile } from './services/saveFileService';
+import { FileProcessingError, InvalidFileTypeError, EmptyFileError } from './services/errors';
 import Header from './components/Header';
 import PokemonGrid from './components/PokemonGrid';
 import PokemonDetailView from './components/PokemonDetailView';
@@ -17,10 +18,23 @@ const App: React.FC = () => {
   const [saveFile, setSaveFile] = useState<File | null>(null);
   const [notification, setNotification] = useState<Notification | null>(null);
   const [view, setView] = useState<'dashboard' | 'grid'>('dashboard');
+  const [isParsing, setIsParsing] = useState(false);
 
   useEffect(() => {
     setPokemonDatabase(getPokemonDatabase());
+     try {
+      const storedBox = localStorage.getItem('pbr-storage-box');
+      if (storedBox) {
+        setStorageBox(JSON.parse(storedBox));
+      }
+    } catch (error) {
+      console.error("Could not load storage box from localStorage", error);
+    }
   }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('pbr-storage-box', JSON.stringify(storageBox));
+  }, [storageBox]);
 
   const showNotification = (message: string, type: Notification['type'], duration: number = 5000) => {
     setNotification({ message, type });
@@ -34,28 +48,34 @@ const App: React.FC = () => {
   const handleSaveFileUpload = async (file: File) => {
     setSaveFile(file);
     setNotification(null);
+    setIsParsing(true);
     try {
       const storedPokemon = await parseSaveFile(file, pokemonDatabase);
       
       if (storedPokemon.length === 0) {
         showNotification('The uploaded file does not contain any recognizable Pokémon sets.', 'warning');
-        setSaveFile(null); // Clear invalid file
         setStorageBox([]);
-        return;
-      }
-
-      if (storedPokemon.length > 6) {
+      } else if (storedPokemon.length > 6) {
         showNotification(`Save file contains more than 6 Pokémon. Only the first 6 have been loaded.`, 'warning');
         setStorageBox(storedPokemon.slice(0, 6));
       } else {
         setStorageBox(storedPokemon);
-        showNotification(`Successfully loaded ${storedPokemon.length} Pokémon from the save file.`, 'success');
+        showNotification(`Successfully loaded ${storedPokemon.length} Pokémon from your file.`, 'success');
       }
     } catch (error) {
       const err = error as Error;
-      console.error('Failed to parse save file:', err.message);
-      showNotification(`Error: Could not parse the save file. Please ensure it's a valid .txt file.`, 'error');
-      setSaveFile(null); // Clear invalid file
+      console.error('Failed to parse save file:', err);
+      if (err instanceof InvalidFileTypeError || err instanceof EmptyFileError) {
+        showNotification(`Error: ${err.message}`, 'error');
+      } else if (err instanceof FileProcessingError) {
+         showNotification(`Error: ${err.message}`, 'error');
+      } else {
+        showNotification(`An unexpected error occurred. Please ensure it's a valid .txt file.`, 'error');
+      }
+      setSaveFile(null);
+      setStorageBox([]);
+    } finally {
+        setIsParsing(false);
     }
   };
 
@@ -81,6 +101,9 @@ const App: React.FC = () => {
         instanceId: Date.now(),
       };
       setStorageBox([...storageBox, newStoredPokemon]);
+      showNotification(`${pokemon.name} was added to your storage box.`, 'success', 3000);
+    } else {
+      showNotification('Your storage box is full!', 'warning', 3000);
     }
   };
 
@@ -129,6 +152,7 @@ const App: React.FC = () => {
               onFileUpload={handleSaveFileUpload}
               onClearFile={handleClearSaveFile}
               notification={notification}
+              isParsing={isParsing}
             />
             <StorageBox 
               box={hydratedBox} 

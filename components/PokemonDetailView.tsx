@@ -214,7 +214,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({ pokemon, onAddToB
                 </div>
                 <div>
                     <label className="text-sm font-medium text-zinc-400">Stats</label>
-                    <div className="space-y-2 mt-1 bg-zinc-700 p-3 rounded-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mt-1 bg-zinc-700 p-3 rounded-md">
                         {Object.entries(editableSet.stats).map(([key, value]) => (
                             <div key={key} className="flex items-center gap-2">
                                 <label className="text-xs font-semibold text-zinc-400 w-16 text-right capitalize">{key.replace('sp', 'Sp. ')}</label>

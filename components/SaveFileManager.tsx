@@ -25,9 +25,10 @@ interface SaveFileManagerProps {
   onFileUpload: (file: File) => void;
   onClearFile: () => void;
   notification: Notification | null;
+  isParsing?: boolean;
 }
 
-const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUpload, onClearFile, notification }) => {
+const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUpload, onClearFile, notification, isParsing }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,11 +111,23 @@ const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUploa
                 onClick={handleClick}
                 className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'border-accent-red bg-zinc-700/50' : 'border-zinc-600 hover:border-zinc-500 hover:bg-zinc-700/30'}`}
             >
-                <UploadIcon className="w-10 h-10 text-zinc-500 mb-2"/>
-                <p className="text-zinc-400 text-sm text-center">
-                    <span className="font-semibold text-accent-red">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-zinc-500 mt-1">Plain Text File (.txt) with one Pokémon set per line.</p>
+              {isParsing ? (
+                  <>
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-accent-red mb-2"></div>
+                      <p className="text-zinc-400 text-sm text-center">
+                          <span className="font-semibold text-accent-red">Parsing file...</span>
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">Please wait a moment.</p>
+                  </>
+              ) : (
+                  <>
+                      <UploadIcon className="w-10 h-10 text-zinc-500 mb-2"/>
+                      <p className="text-zinc-400 text-sm text-center">
+                          <span className="font-semibold text-accent-red">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">Plain Text File (.txt) with one Pokémon set per line.</p>
+                  </>
+              )}
             </div>
         </>
       ) : (
