@@ -5,14 +5,17 @@ interface AnimatedSpriteProps {
     pokemon: Pokemon;
     className?: string;
     onClick?: () => void;
+    isShiny?: boolean;
 }
 
-const AnimatedSprite: React.FC<AnimatedSpriteProps> = ({ pokemon, className, onClick }) => {
+const AnimatedSprite: React.FC<AnimatedSpriteProps> = ({ pokemon, className, onClick, isShiny }) => {
     const [useStatic, setUseStatic] = useState(false);
+
+    const spriteSet = isShiny ? pokemon.shinySprite : pokemon.sprite;
 
     useEffect(() => {
         setUseStatic(false);
-    }, [pokemon]);
+    }, [pokemon, isShiny]);
 
     const handleError = () => {
         setUseStatic(true);
@@ -20,7 +23,7 @@ const AnimatedSprite: React.FC<AnimatedSpriteProps> = ({ pokemon, className, onC
 
     return (
         <img 
-            src={useStatic ? pokemon.sprite.static : pokemon.sprite.animated}
+            src={useStatic ? spriteSet.static : spriteSet.animated}
             alt={pokemon.name}
             className={className}
             onError={handleError}

@@ -1,5 +1,6 @@
 import type { Pokemon, BattleSet } from '../types';
 import { PokemonType } from '../types';
+import { getRentalPassesForPokemon } from './rentalPassService';
 
 // Raw database string provided by the user
 const PBR_DATABASE_STRING = `
@@ -224,7 +225,7 @@ Kecleon		[8]	M	100	Color Change	Frustration	Copycat		Stealth Rock	Recover		Lefto
 Banette		[8]	M	100	Insomnia	Shadow Claw	Trick Room	Taunt		Grudge		Focus Sash	270	361	166	202	225	121
 Dusclops	[8]	M	100	Pressure	Night Shade	Will-O-Wisp	Pain Split	Trick Room	Leftovers	284	145	394	140	297	55
 Tropius		[8]	M	100	Solar Power	Air Slash	Solar Beam	Sunny Day	Tailwind	Life Orb	339	126	204	243	210	220
-Chimecho	[8]	M	100	Levitate	Psychic		Light Screen	Skill Swap	Trick Room	Focus Sash	332	94	196	284	196	179
+Chimecho	[8]	M	100	Levitate	Psychic		Light Screen	Skill Swap	Trick Room	Focus Chimecho	332	94	196	284	196	179
 Absol		[8]	M	100	Super Luck	Night Slash	Sucker Punch	Psycho Cut	Endure		Lansat Berry	272	359	156	167	156	273
 Glalie		[8]	M	100	Inner Focus	Ice Shard	Taunt		Spikes		Self-Destruct	Focus Sash	302	259	196	176	196	284
 Walrein		[8]	M	100	Ice Body	Blizzard	Surf		Super Fang	Aqua Ring	Leftovers	419	148	306	226	222	166
@@ -278,7 +279,7 @@ Honchkrow	[9]	M	100	Insomnia	Sky Attack	Night Slash	Heat Wave	Tailwind	Power Her
 Purugly		[9]	M	100	Own Tempo	Fake Out	Flail		U-turn		Endure		Silk Scarf	284	263	164	147	154	355
 Skuntank	[9]	M	100	Aftermath	Sucker Punch	Poison Jab	Fire Blast	Pursuit		Black Glasses	377	313	170	160	159	237
 Bronzong	[9]	-	100	Levitate	Psychic		Gyro Ball	Rain Dance	Trick Room	Leftovers	336	214	272	194	363	63
-Chatot		[9]	M	100	Tangled Feet	Hyper Voice	Heat Wave	Nasty Plot	Encore		Salac Berry	294	121	126	283	120	309
+Chatot		[9]	M	100	Tangled Feet	Hyper Voice	Heat Wave	Nasty Plot	Encore		Salac Chatot	294	121	126	283	120	309
 Spiritomb	[9]	M	100	Pressure	Dark Pulse	Psychic		Pursuit		Will-O-Wisp	Leftovers	303	173	253	303	253	113
 Garchomp	[10]	M	100	Sand Veil	Outrage		Earthquake	Stone Edge	Dragon Claw	Leftovers	358	359	226	176	206	333
 Garchomp	[10]	M	100	Sand Veil	Dragon Rush	Earthquake	Fire Fang	Swords Dance	Haban Berry	358	359	226	176	206	333
@@ -557,6 +558,10 @@ Scyther		[PARTY]	M	100	Technician	Bug Bite	Wing Attack	Reversal	Endure		Liechi B
 `;
 
 // Pokedex data for types and IDs, as this is missing from the source file.
+// Note: The PBR database is based on Generation 4. Pokémon that received type changes
+// in later generations (e.g., Clefable becoming Fairy-type) are represented here
+// with their original Gen 4 typings. Types introduced after Gen 4, such as Fairy,
+// are not included in this database.
 const POKEDEX_DATA: Record<string, { id: number; types: PokemonType[] }> = {
   'Bulbasaur': { id: 1, types: [PokemonType.Grass, PokemonType.Poison] },
   'Ivysaur': { id: 2, types: [PokemonType.Grass, PokemonType.Poison] },
@@ -1106,6 +1111,7 @@ const parsePbrDatabase = (): Pokemon[] => {
       if (pokemonMap.has(species)) {
         pokemonMap.get(species)!.sets.push(battleSet);
       } else {
+        const rentalPasses = getRentalPassesForPokemon(species);
         const newPokemon: Pokemon = {
           id: pokedexEntry.id,
           name: species,
@@ -1114,7 +1120,12 @@ const parsePbrDatabase = (): Pokemon[] => {
             animated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokedexEntry.id}.gif`,
             static: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexEntry.id}.png`,
           },
+          shinySprite: {
+            animated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${pokedexEntry.id}.gif`,
+            static: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokedexEntry.id}.png`,
+          },
           sets: [battleSet],
+          ...(rentalPasses && { rentalPasses }),
         };
         pokemonMap.set(species, newPokemon);
       }

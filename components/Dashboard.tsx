@@ -5,7 +5,7 @@ import AnimatedSprite from './AnimatedSprite';
 interface DashboardProps {
     pokemonList: Pokemon[];
     onPokemonSelect: (pokemon: Pokemon) => void;
-    onSetView: (view: 'dashboard' | 'grid') => void;
+    onSetView: (view: 'dashboard' | 'grid' | 'passes') => void;
 }
 
 const featuredPokemonNames = ['Charizard', 'Blastoise', 'Dragonite', 'Gengar', 'Salamence', 'Darkrai'];
@@ -19,16 +19,22 @@ const Dashboard: React.FC<DashboardProps> = ({ pokemonList, onPokemonSelect, onS
             <div className="text-center">
                 <h2 className="text-3xl font-bold text-zinc-100 tracking-tight">Welcome to the PBR Workshop</h2>
                 <p className="mt-2 text-zinc-400 max-w-2xl mx-auto">
-                    Browse the database, customize your favorite Pokémon, and manage your team.
+                    Browse the database, explore pre-made Battle Passes, and manage your team.
                 </p>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                     onClick={() => onSetView('grid')}
                     className="w-full text-center bg-accent-red text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-red-700 text-lg"
                 >
-                    Browse Full Pokédex &raquo;
+                    Browse Pokédex &raquo;
+                </button>
+                <button
+                    onClick={() => onSetView('passes')}
+                    className="w-full text-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-blue-700 text-lg"
+                >
+                    View Battle Passes &raquo;
                 </button>
             </div>
             

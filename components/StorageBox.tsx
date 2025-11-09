@@ -1,16 +1,11 @@
-import React from 'react';
-import type { Pokemon, BattleSet, StoredPokemon } from '../types';
+import React, { useState, useMemo } from 'react';
+import type { HydratedStoredPokemon } from '../types';
 import AnimatedSprite from './AnimatedSprite';
-
-interface HydratedStoredPokemon extends StoredPokemon {
-  pokemon: Pokemon;
-  set: BattleSet;
-}
 
 interface StorageBoxProps {
   box: HydratedStoredPokemon[];
   onRemoveFromBox: (instanceId: number) => void;
-  onSelectFromBox: (pokemon: Pokemon) => void;
+  onSelectFromBox: (item: HydratedStoredPokemon) => void;
 }
 
 const XCircleIcon: React.FC<{className?: string}> = ({ className }) => (
@@ -19,16 +14,48 @@ const XCircleIcon: React.FC<{className?: string}> = ({ className }) => (
     </svg>
 );
 
+const SearchIcon: React.FC<{className?: string}> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+    </svg>
+);
+
 
 const StorageBox: React.FC<StorageBoxProps> = ({ box, onRemoveFromBox, onSelectFromBox }) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const slots = Array.from({ length: 6 });
+
+  const filteredBox = useMemo(() => {
+    if (!searchTerm) {
+      return box;
+    }
+    return box.filter(item =>
+      item.pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, box]);
 
   return (
     <div className="bg-zinc-800 rounded-lg p-4 shadow-lg border border-zinc-700">
       <h3 className="text-lg font-semibold text-zinc-200 mb-4">Storage Box ({box.length}/6)</h3>
+
+      <div className="relative mb-4">
+          <input
+              type="text"
+              placeholder="Search in box..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-md py-2 pl-10 pr-4 text-zinc-300 focus:ring-2 focus:ring-accent-red focus:outline-none disabled:bg-zinc-800 disabled:cursor-not-allowed"
+              disabled={box.length === 0 && !searchTerm}
+              aria-label="Search Pokémon in storage box"
+          />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <SearchIcon className="h-5 w-5 text-zinc-500" />
+          </div>
+      </div>
+
       <div className="grid grid-cols-6 gap-2">
         {slots.map((_, index) => {
-          const item = box[index];
+          const item = filteredBox[index];
           return (
             <div 
               key={index} 
@@ -39,7 +66,8 @@ const StorageBox: React.FC<StorageBoxProps> = ({ box, onRemoveFromBox, onSelectF
                   <AnimatedSprite 
                     pokemon={item.pokemon}
                     className="h-12 w-12 cursor-pointer"
-                    onClick={() => onSelectFromBox(item.pokemon)}
+                    onClick={() => onSelectFromBox(item)}
+                    isShiny={item.set.isShiny}
                   />
                   <button 
                     onClick={() => onRemoveFromBox(item.instanceId)}
@@ -54,6 +82,9 @@ const StorageBox: React.FC<StorageBoxProps> = ({ box, onRemoveFromBox, onSelectF
           );
         })}
       </div>
+       {searchTerm && filteredBox.length === 0 && (
+        <p className="text-center text-sm text-zinc-500 mt-3">No Pokémon matching "{searchTerm}" in your box.</p>
+      )}
     </div>
   );
 };

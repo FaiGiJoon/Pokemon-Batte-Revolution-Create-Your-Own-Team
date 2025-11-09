@@ -19,3 +19,23 @@ export const TYPE_COLORS: Record<PokemonType, string> = {
   [PokemonType.Dark]: 'bg-poke-dark',
   [PokemonType.Steel]: 'bg-poke-steel',
 };
+
+export const TYPE_ABBREVIATIONS: Record<PokemonType, string> = {
+  [PokemonType.Normal]: 'NOR',
+  [PokemonType.Fire]: 'FIR',
+  [PokemonType.Water]: 'WAT',
+  [PokemonType.Grass]: 'GRA',
+  [PokemonType.Electric]: 'ELE',
+  [PokemonType.Ice]: 'ICE',
+  [PokemonType.Fighting]: 'FIG',
+  [PokemonType.Poison]: 'POI',
+  [PokemonType.Ground]: 'GRO',
+  [PokemonType.Flying]: 'FLY',
+  [PokemonType.Psychic]: 'PSY',
+  [PokemonType.Bug]: 'BUG',
+  [PokemonType.Rock]: 'ROC',
+  [PokemonType.Ghost]: 'GHO',
+  [PokemonType.Dragon]: 'DRA',
+  [PokemonType.Dark]: 'DAR',
+  [PokemonType.Steel]: 'STE',
+};

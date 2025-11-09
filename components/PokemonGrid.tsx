@@ -5,7 +5,7 @@ import PokemonCard from './PokemonCard';
 interface PokemonGridProps {
   pokemonList: Pokemon[];
   onPokemonSelect: (pokemon: Pokemon) => void;
-  onSetView: (view: 'dashboard' | 'grid') => void;
+  onSetView: (view: 'dashboard' | 'grid' | 'passes') => void;
 }
 
 const SearchIcon: React.FC<{className: string}> = ({ className }) => (

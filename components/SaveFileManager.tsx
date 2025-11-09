@@ -19,16 +19,24 @@ const XCircleIcon: React.FC<{className?: string}> = ({ className }) => (
     </svg>
 );
 
+const SyncIcon: React.FC<{className?: string}> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001a7.5 7.5 0 0 1 0 1.052A7.5 7.5 0 0 1 12 18.75a7.5 7.5 0 0 1-8.36-5.408V12a7.5 7.5 0 0 1 12.023-5.652m-3.023 5.652v-2.004a3.375 3.375 0 0 0-3.375-3.375H8.25m9 1.5-3-3m0 0-3 3m3-3v12" />
+    </svg>
+);
+
 
 interface SaveFileManagerProps {
   saveFile: File | null;
   onFileUpload: (file: File) => void;
   onClearFile: () => void;
+  onUpdateSaveFile: () => void;
+  isBoxPopulated: boolean;
   notification: Notification | null;
   isParsing?: boolean;
 }
 
-const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUpload, onClearFile, notification, isParsing }) => {
+const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUpload, onClearFile, onUpdateSaveFile, isBoxPopulated, notification, isParsing }) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +109,6 @@ const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUploa
                 ref={fileInputRef} 
                 onChange={handleFileChange} 
                 className="hidden"
-                accept=".txt"
             />
             <div
                 onDragEnter={handleDragEnter}
@@ -125,13 +132,14 @@ const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUploa
                       <p className="text-zinc-400 text-sm text-center">
                           <span className="font-semibold text-accent-red">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-zinc-500 mt-1">Plain Text File (.txt) with one Pokémon set per line.</p>
+                      <p className="text-xs text-zinc-500 mt-1">PBR save file or a plain text file with one set per line.</p>
                   </>
               )}
             </div>
         </>
       ) : (
-        <div className="bg-zinc-700 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-zinc-700 rounded-lg p-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
                 <FileIcon className="w-8 h-8 text-zinc-400 flex-shrink-0"/>
                 <div className="overflow-hidden">
@@ -142,6 +150,18 @@ const SaveFileManager: React.FC<SaveFileManagerProps> = ({ saveFile, onFileUploa
             <button onClick={onClearFile} className="text-zinc-500 hover:text-accent-red transition-colors flex-shrink-0 ml-2" aria-label="Clear save file">
                 <XCircleIcon className="w-6 h-6"/>
             </button>
+          </div>
+          <div className="mt-4">
+             <button 
+                onClick={onUpdateSaveFile} 
+                disabled={!isBoxPopulated}
+                className="w-full flex items-center justify-center gap-2 bg-accent-red text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 hover:bg-red-700 disabled:bg-zinc-600 disabled:cursor-not-allowed disabled:text-zinc-400"
+            >
+                <SyncIcon className="w-5 h-5" />
+                Sync Box to File
+            </button>
+            {!isBoxPopulated && <p className="text-xs text-center text-zinc-500 mt-2">Add Pokémon to your box to enable sync.</p>}
+        </div>
         </div>
       )}
     </div>

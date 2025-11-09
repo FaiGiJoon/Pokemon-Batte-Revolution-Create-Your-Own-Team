@@ -7,13 +7,6 @@ export class FileProcessingError extends Error {
   }
 }
 
-export class InvalidFileTypeError extends FileProcessingError {
-  constructor(message: string = "Invalid file type. Please upload a .txt file.") {
-    super(message);
-    this.name = 'InvalidFileTypeError';
-  }
-}
-
 export class EmptyFileError extends FileProcessingError {
   constructor(message: string = "The selected file is empty.") {
     super(message);
